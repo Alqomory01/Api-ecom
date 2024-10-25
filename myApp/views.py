@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from django.db.models import Q
 
 
 
@@ -88,13 +89,70 @@ class ProductListView(APIView):
     
     def put(self, request, pk, format=None):
         product = self.get_object(pk)
-        serializer = ProductSerializer(product, data=request.data)
+        serializer = ProductSerilizer(product, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProductDetail(APIView):
+    def get_by_id(id:str):
+        try:
+            return Product.objects.get(id=id)
+        except:
+            raise Http404('product not found')
+        
+    def get(self, request, pk:str, format=None):
+        product = self.get_by_id(pk)
+        serializer = ProductSerilizer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, pk:str, format=None):
+        product = self.get_by_id(pk)
+        serializer = ProductSerilizer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk:str):
+        product = self.get_by_id(pk)
+        product.delete()
+        return Response({"details:" "product deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+class ProductCount(APIView):
 
-
+    def get(self, request, format=None):
+        count = Product.objects.count()
+        return Response({"count": count}, status=status.HTTP_200_OK)
+    
+class ProductByCategory(APIView):
+        def get(self, request, category_id:int, format=None):
+            products = Product.objects.filter(category_id=category_id)
+            serializer = ProductSerilizer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class ProductBrand(APIView):
+        def get(self, request, brand_id:int, format=None):
+            products = Product.objects.filter(brand_id=brand_id)
+            serializer = ProductSerilizer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class ProductSearch(APIView):
+        def get(self, request, search_term:str, format=None):
+            search_query = request.data.get("query" "")
+            if search_query:
+                search_results = Product.objects.filter(
+                    Q(name_icontains=search_query)
+                    | Q(category__icontains=search_query)
+                    | Q(brand__icontains=search_query)
+                    | Q(price__icontains=search_query)
+                )
+                search_results = search_results.order_by("id")
+                serializer = Product(search_results, many=True)
+                return Response(serializer.data)
+            return Response("invalid search query", status=status.HTTP_400_BAD_REQUEST)
+        
+    
 # Create your views here.
