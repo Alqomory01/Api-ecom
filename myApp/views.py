@@ -15,132 +15,136 @@ from django.db.models import Q
 #     categories = Category.objects.all()
 #     serializer = CategorySerializer(categories, many=True)
 #     return Response(serializer.data)
-class Allcarts(APIView):
-    def get_object(self):
-        try:
-            return CartItem.objects.get()
-        except CartItem.DoesNotExist:
-            raise Http404
+# class Allcarts(APIView):
+#     def get_object(self):
+#         try:
+#             return CartItem.objects.get()
+#         except CartItem.DoesNotExist:
+#             raise Http404
+#     def get(self, request):
+#         cartitem = self.get_object()
+#         serializer = CartSerializer(cartitem) 
+#         return Response(serializer.data)
+class Products(APIView):
     def get(self, request):
-        cartitem = self.get_object()
-        serializer = CartSerializer(cartitem) 
-        return Response(serializer.data)
+        obj = Product.objects.all()
+        serializers = ProductSerilizer(obj, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, format=None):
+        serializers = ProductSerilizer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryListView(APIView):
-    def get_object(self, pk):
-        try:
-            return Categorie.objects.get(pk=pk)
-        except Categorie.DoesNotExist:
-            raise Http404
-    def get(self, request, pk, format=None):
-        category= self.get_object(pk)
-        serializer = CategorySerializer(category)     
-        return Response(serializer.data)
+    def get(self, request):
+        
+        category= Categorie.objects.all()
+        serializer = CategorySerializer(category, many=True)     
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, format=None):
-        category = self.get_object()
-        serializer = CategorySerializer(category, data=request.data)
+    def post(self, request, format=None):
+        serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.Http_400_BAD_REQUEST)
-    
-    def delete(self, request, pk, format=None):
-        category = self.get_object(pk)
-        category.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-class BrandListView(APIView):
-    def get_object(self, pk):
-        try:
-            return Brand.objects.get(pk=pk)
-        except Brand.DoesNotExist:
-            raise Http404
-        
-    def get(self, request, pk, format=None):
-        brand = self.get_object(pk)
-        serializer = BrandSerializer(brand)
+       
+class BrandListView(APIView): 
+    def get(self, request):
+        brand = Brand.objects.all()
+        serializer = BrandSerializer(brand, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, pk, format=None):
-        brand = self.get_object(pk)
-        serializer = BrandSerializer(brand, data=request.data)
+    def post(self, request,  format=None):
+        serializer = BrandSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request, pk, format=None):
-        brand = self.get_category(request, pk)
-        brand.delete()
-
-class ProductListView(APIView):
-    def get_object(self, pk):
-        try:
-            return Product.objects.get(pk=pk)
-        except:
-            raise Http404
+    
+# class ProductListView(APIView):
+#     def get_by_id(self, id):
+#         try:
+#             obj = Product.objects.get(id=id)
+#             return obj
+#         except:
+#             raise Http404
         
-    def get(self, request, pk, format=None):
-        product = self.get_object(pk)
-        serializer = self.get_serializer(product)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#     def get(self, request, id: str):
+#         product = self.get_by_id(id)
+#         serializer = ProductSerilizer(product)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, pk, format=None):
-        product = self.get_object(pk)
-        serializer = ProductSerilizer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
+#     def put(self, request, id, format=None):
+#         product = self.get_object(id)
+#         serializer = ProductSerilizer(product, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductDetail(APIView):
-    def get_by_id(id:str):
+    def get_by_id(self, id):
         try:
-            return Product.objects.get(id=id)
-        except:
+            obj = Product.objects.get(id=id)
+            return obj  # Return the object to use in the get method
+        except Product.DoesNotExist:
             raise Http404('product not found')
         
-    def get(self, request, pk:str, format=None):
-        product = self.get_by_id(pk)
+    def get(self, request, id: str, ):
+        product = self.get_by_id(id) 
         serializer = ProductSerilizer(product)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, pk:str, format=None):
-        product = self.get_by_id(pk)
+    def put(self, request, id, format=None):
+        product = self.get_by_id(id)
         serializer = ProductSerilizer(product, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request, pk:str):
-        product = self.get_by_id(pk)
+    def delete(self, request, id:str):
+        product = self.get_by_id(id)
         product.delete()
         return Response({"details:" "product deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
 class ProductCount(APIView):
 
-    def get(self, request, format=None):
-        count = Product.objects.count()
+    def get(self, request):
+        count = Product.objects.all().count()
         return Response({"count": count}, status=status.HTTP_200_OK)
     
 class ProductByCategory(APIView):
-        def get(self, request, category_id:int, format=None):
-            products = Product.objects.filter(category_id=category_id)
+       def get(self, request, category_id:str):
+        try:
+            # Log the incoming category_id
+            print(f"Received category_id: {category_id}")
+            # Retrieve the category based on the provided ID
+            category = Categorie.objects.get(id=category_id)  # Adjust to match your Category model
+            # Now filter products by this category
+            products = Product.objects.filter(category=category)
             serializer = ProductSerilizer(products, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except Categorie.DoesNotExist:
+            return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class ProductBrand(APIView):
-        def get(self, request, brand_id:int, format=None):
-            products = Product.objects.filter(brand_id=brand_id)
+        def get(self, request, brand_id:int):
+            products = Product.objects.filter(brand=brand_id)
             serializer = ProductSerilizer(products, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
 class ProductSearch(APIView):
-        def get(self, request, search_term:str, format=None):
+        def get(self, request):
             search_query = request.data.get("query" "")
             if search_query:
                 search_results = Product.objects.filter(

@@ -4,14 +4,14 @@ from django.core.validators import MinValueValidator
 import uuid
 
 class Categorie(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=55)
 
     def __str__(self):
         return self.name
     
 class Brand(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=55)
     profile = models.ImageField(upload_to='product_image', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
