@@ -9,13 +9,13 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 class  BrandAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['id', 'name', 'profile']
     list_filter = ['name']
     ordering = ['created_at']
     search_fields = ['name']
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'product', 'category', 'brand']
+    list_display = ['id', 'product', 'category', 'brand', 'price']
     list_filter = ['category']
     ordering = ['price']
 
