@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-0u3v208wn-^w(orieqe2r1jjulej#caseok8(@o$&!pyx-z4m@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['newecom.onrender.com']
+ALLOWED_HOSTS = ['api-ecom-1.com', 'www.api-ecom-1.com', 'api-ecom-1.onrender.com']
 
 
 # Application definition
