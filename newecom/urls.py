@@ -40,13 +40,14 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     re_path(
-        r"^$", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"
-    ),
+        r"^$", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
+    re_path(r"redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path('admin/', admin.site.urls),
-    path('', include('myApp.urls') )
+    path('myApp/', include('myApp.urls') )
 ]
 
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
   
